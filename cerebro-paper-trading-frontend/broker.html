@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Document</title>
+	<script src="https://cdn.tailwindcss.com"></script>
+	<script src="https://cdn.jsdelivr.net/npm/preline@2.1/dist/preline.min.js"></script>
+	<script>
+		localStorage.setItem('hs_theme', 'dark');
+	</script>
+</head>
+
+<body class="dark:bg-neutral-900">
+	<!-- <div class="max-w-2xl mx-auto text-center pt-2 flex justify-between items-center">
+		<h2 class="text-2xl font-bold sm:text-3xl md:text-4xl dark:text-white">Paper Trading</h2>
+		<p class="text-right dark:text-white ml-auto">Your text here</p>
+	</div> -->
+
+	<div class="max-w-2xl mx-auto text-center pt-2 flex items-center">
+		<h2 class="text-2xl font-bold sm:text-3xl md:text-4xl dark:text-white flex-grow">Paper Trading</h2>
+		<p class="text-right text-2xl dark:text-white ml-auto" id="index">09</p>
+	</div>
+
+	<div class="max-w-[85rem] px-4 py-10 sm:px-6 lg:px-8 lg:py-8 mx-auto">
+		<!-- Card Section -->
+	<!-- First row with 3 cards -->
+	<div id="card-section-row1" class="grid grid-cols-3 gap-4 sm:gap-6 mb-6">
+		<!-- Cards will be dynamically generated here -->
+	</div>
+	
+	<!-- Second row with 4 cards -->
+	<div id="card-section-row2" class="grid grid-cols-4 gap-4 sm:gap-6 mb-6">
+		<!-- Cards will be dynamically generated here -->
+	</div>
+	
+	<!-- Third row with 3 cards -->
+	<div id="card-section-row3" class="grid grid-cols-3 gap-4 sm:gap-6">
+		<!-- Cards will be dynamically generated here -->
+	</div>
+		<!-- End Card Section -->
+	</div>
+
+	<script>
+		let index = 0;
+		let data = [];
+		fetch("./data.json")
+			.then(response => response.json())
+			.then(d => {
+				
+				data = d;
+			});
+
+	const createCards = (data) => {
+			data.change = parseFloat(data.change).toFixed(4);
+
+			return data.change > 0 ?
+				`<!-- Card -->
+			<div
+				class="flex flex-col gap-y-3 lg:gap-y-5 p-4 md:p-5 bg-white border shadow-sm rounded-xl dark:bg-neutral-900 dark:border-neutral-700">
+				<div class="inline-flex justify-center items-center">
+					<span class="text-2xl font-semibold uppercase text-gray-600 dark:text-neutral-400">${data.ticker}</span>
+				</div>
+
+				<div class="text-center">
+					<h3 class="text-3xl sm:text-4xl lg:text-5xl font-semibold text-gray-800 dark:text-neutral-200">
+						${data.close}
+					</h3>
+				</div>
+
+				<dl class="flex justify-center items-center divide-x divide-gray-200 dark:divide-neutral-800">
+					<dt class="pe-3 flex flex-col items-center">
+						<span class="text-green-600">
+							<svg class="inline-block size-5 self-center" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+							<span class="inline-block text-lg">
+								${data.change}%
+							</span>
+						</span>
+						
+					</dt>
+				</dl>
+			</div>
+			<!-- End Card -->`
+				:
+				`<!-- Card -->
+			<div
+				class="flex flex-col gap-y-3 lg:gap-y-5 p-4 md:p-5 bg-white border shadow-sm rounded-xl dark:bg-neutral-900 dark:border-neutral-700">
+				<div class="inline-flex justify-center items-center">
+					<span class="text-2xl font-semibold uppercase text-gray-600 dark:text-neutral-400">${data.ticker}</span>
+				</div>
+
+				<div class="text-center">
+					<h3 class="text-3xl sm:text-4xl lg:text-5xl font-semibold text-gray-800 dark:text-neutral-200">
+						${data.close}
+					</h3>
+				</div>
+
+				<dl class="flex justify-center items-center divide-x divide-gray-200 dark:divide-neutral-800">
+					<dt class="pe-3 flex flex-col items-center">
+						<span class="text-red-600">
+							<svg class="inline-block size-4 self-center" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 17 13.5 8.5 8.5 13.5 2 7"/><polyline points="16 17 22 17 22 11"/></svg>
+							<span class="inline-block text-lg">
+								${data.change}%
+							</span>
+						</span>
+						
+					</dt>
+				</dl>
+			</div>
+			<!-- End Card -->`
+		}
+
+		const renderCards = (data) => {
+			const cardSectionRow1 = document.getElementById('card-section-row1');
+			const cardSectionRow2 = document.getElementById('card-section-row2');
+			const cardSectionRow3 = document.getElementById('card-section-row3');
+			const indexElement = document.getElementById('index');
+
+			indexElement.textContent = data.index;
+			console.log(data);
+			cardSectionRow1.innerHTML = data.stockData.slice(0, 3).map(createCards).join('');
+			cardSectionRow2.innerHTML = data.stockData.slice(3, 7).map(createCards).join('');
+			cardSectionRow3.innerHTML = data.stockData.slice(7, 10).map(createCards).join('');
+		};
+
+		document.addEventListener("keydown", function (event) {
+			const keyCode = event.key;
+
+			if (keyCode === "ArrowRight" || keyCode === "ArrowUp") {
+				index++;
+				console.log(index)
+				renderCards({ index, stockData: data[index] });
+			} else if (keyCode === "ArrowLeft" || keyCode === "ArrowDown") {
+				index--;
+				console.log(index)
+				renderCards({ index, stockData: data[index] });
+
+			}
+		});
+
+	</script>
+</body>
+
+</html>
